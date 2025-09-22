@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Conjugador de Náhuat - IPN El Salvador</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background: #f9f9f9; }
+  h1, h3 { margin: 5px; }
+  h1 { color: #2E7D32; }
+  h3 { color: #555; font-weight: normal; font-size: 18px; }
+  input, select, button { padding: 8px; margin: 5px; font-size: 16px; }
+  button { background-color: #2E7D32; color: white; border: none; cursor: pointer; }
+  button:hover { background-color: #1B5E20; }
+  table { width: 90%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 0 5px #aaa; }
+  th, td { border: 1px solid #444; padding: 10px; }
+  th { background-color: #A5D6A7; }
+  td.nahuat { color: #2E7D32; font-weight: bold; }
+  td.esp { color: #424242; }
+</style>
+</head>
+<body>
+
+<!-- Encabezado institucional -->
+<div style="text-align:center; margin-bottom:20px;">
+  <img src="https://drive.google.com/uc?export=view&id=1240e6ke62hsR3_nBPUY5vqe_W4ST6O9k" alt="IPN El Salvador" style="height:80px;">
+  <h1>Conjugador de Verbos en Náhuat</h1>
+  <h3>Tamachtiluyan Tenpewalis Nawatajtawikani – Escuela Iniciativa Portadores del Náhuat. IPN El Salvador</h3>
+</div>
+
+<!-- Formulario y herramienta -->
+<label for="verbo">Verbo en Náhuat:</label><br>
+<input type="text" id="verbo" placeholder="Ej: paki, chiwa"><br>
+
+<label for="verboes">Verbo en Español (infinitivo):</label><br>
+<input type="text" id="verboes" placeholder="Ej: estar, hacer, amar"><br>
+
+<label for="tipo">Tipo de verbo:</label>
+<select id="tipo">
+  <option value="intransitivo">Intransitivo</option>
+  <option value="transitivo">Transitivo</option>
+</select><br>
+
+<button onclick="conjugar()">Conjugar</button>
+
+<div id="resultado"></div>
+
+<script>
+function conjugar() {
+  let verbo = document.getElementById("verbo").value.trim().toLowerCase();
+  let verboEs = document.getElementById("verboes").value.trim().toLowerCase();
+  let tipo = document.getElementById("tipo").value;
+
+  if (!verbo || !verboEs) {
+    alert("Por favor escribe el verbo en náhuat y su traducción al español.");
+    return;
+  }
+
+  let sujetos = [
+    {pers: "Naja (yo)", suf: ""},
+    {pers: "Taja (tú)", suf: ""},
+    {pers: "Yaja (él/ella)", suf: ""},
+    {pers: "Tejemet (nosotros)", suf: "t"},
+    {pers: "Anmejemet (ustedes)", suf: "t"},
+    {pers: "Yejemet (ellos/ellas)", suf: "t"}
+  ];
+
+  let prefTrans = {"Naja (yo)":"nik","Taja (tú)":"tik","Yaja (él/ella)":"ki","Tejemet (nosotros)":"tik","Anmejemet (ustedes)":"anki","Yejemet (ellos/ellas)":"ki"};
+  let prefIntrans = {"Naja (yo)":"ni","Taja (tú)":"ti","Yaja (él/ella)":"","Tejemet (nosotros)":"ti","Anmejemet (ustedes)":"an","Yejemet (ellos/ellas)":""};
+
+  // Diccionario español conocido
+  let dicEsp = {
+    "estar":["yo estoy","tú estás","él/ella está","nosotros estamos","ustedes están","ellos/ellas están"],
+    "hacer":["yo hago","tú haces","él/ella hace","nosotros hacemos","ustedes hacen","ellos/ellas hacen"],
+    "comer":["yo como","tú comes","él/ella come","nosotros comemos","ustedes comen","ellos comen"],
+    "alegrarse":["yo me alegro","tú te alegras","él/ella se alegra","nosotros nos alegramos","ustedes se alegran","ellos/ellas se alegran"],
+    "bañarse":["yo me baño","tú te bañas","él/ella se baña","nosotros nos bañamos","ustedes se bañan","ellos/ellas se bañan"],
+    "amar":["yo amo","tú amas","él/ella ama","nosotros amamos","ustedes aman","ellos/ellas aman"],
+    "querer":["yo quiero","tú quieres","él/ella quiere","nosotros queremos","ustedes quieren","ellos/ellas quieren"]
+  };
+
+  // Función para conjugar automáticamente verbos regulares
+  function conjugarRegular(v) {
+    let raiz = v.slice(0, -2);
+    let termin = v.slice(-2);
+    if(termin === "ar") return [`yo ${raiz}o`,`tú ${raiz}as`,`él/ella ${raiz}a`,`nosotros ${raiz}amos`,`ustedes ${raiz}an`,`ellos/ellas ${raiz}an`];
+    if(termin === "er") return [`yo ${raiz}o`,`tú ${raiz}es`,`él/ella ${raiz}e`,`nosotros ${raiz}emos`,`ustedes ${raiz}en`,`ellos/ellas ${raiz}en`];
+    if(termin === "ir") return [`yo ${raiz}o`,`tú ${raiz}es`,`él/ella ${raiz}e`,`nosotros ${raiz}imos`,`ustedes ${raiz}en`,`ellos/ellas ${raiz}en`];
+    return [`yo ${v}`, `tú ${v}`, `él/ella ${v}`, `nosotros ${v}`, `ustedes ${v}`, `ellos/ellas ${v}`];
+  }
+
+  let conjEsp = dicEsp[verboEs] ? dicEsp[verboEs] : conjugarRegular(verboEs);
+
+  let res = "<table><tr><th>Persona</th><th>Náhuat</th><th>Español</th></tr>";
+
+  sujetos.forEach((s,i) => {
+    let forma = tipo==="intransitivo" ? `${prefIntrans[s.pers]}${verbo}${s.suf}` : `${prefTrans[s.pers]}-${verbo}${s.suf}`;
+    res += `<tr><td>${s.pers}</td><td class="nahuat">${forma}</td><td class="esp">${conjEsp[i]}</td></tr>`;
+  });
+
+  res += "</table>";
+  document.getElementById("resultado").innerHTML = res;
+}
+</script>
+
+</body>
+</html>
